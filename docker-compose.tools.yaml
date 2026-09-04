@@ -1,0 +1,26 @@
+# Optional admin tools (phpMyAdmin). Not part of the normal stack.
+#
+# Brought up on demand, ALONGSIDE the running prod stack, e.g.:
+#   docker compose --env-file .env.production \
+#     -f docker-compose.yaml -f docker-compose.prod.yaml -f docker-compose.tools.yaml \
+#     up -d phpmyadmin
+#
+# It binds to 127.0.0.1 only — reach it via an SSH tunnel, never the public IP.
+services:
+  phpmyadmin:
+    image: phpmyadmin:5
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 64M
+    ports:
+      # host-local only: NOT reachable from the internet.
+      # Port 8081 avoids clashing with the dev `web` container (8080)
+      # and the prod `web` container (8000).
+      - "127.0.0.1:8082:80"
+    networks:
+      - laravel-test
