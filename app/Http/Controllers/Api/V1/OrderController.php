@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Gate;
+use App\Actions\Orders\CancelOrder;
+use App\Http\Requests\Orders\CancelOrderRequest;
 
 class OrderController extends Controller
 {
@@ -71,5 +73,15 @@ class OrderController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function cancel(
+        CancelOrderRequest $request,
+        Order $order,
+        CancelOrder $cancelOrder,
+    ): OrderResource {
+        return new OrderResource(
+            $cancelOrder->handle($order, $request->user()),
+        );
     }
 }

@@ -96,4 +96,9 @@ Route::prefix('v1')
         Route::post('/addresses', [AddressController::class, 'store']);
         Route::patch('/addresses/{address}', [AddressController::class, 'update']);
         Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
+
+        Route::post('/orders/{order}/cancel', [
+            OrderController::class,
+            'cancel',
+        ]);
     });
