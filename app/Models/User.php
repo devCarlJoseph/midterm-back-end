@@ -59,4 +59,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
+
+    public function deliveries(): HasMany
+    {
+        return $this->hasMany(Delivery::class, 'driver_id');
+    }
 }

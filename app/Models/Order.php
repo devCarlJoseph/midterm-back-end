@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+
 #[Fillable([
     'order_number',
     'user_id',
@@ -65,4 +66,9 @@ class Order extends Model
     {
         return $this->hasMany(OrderStatusHistory::class);
     }
-}   
+
+    public function delivery(): HasOne
+    {
+        return $this->hasOne(Delivery::class);
+    }
+}

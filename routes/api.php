@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\AddressController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\MerchantOrderController;
+use App\Http\Controllers\Api\V1\DriverDeliveryController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/auth')->group(function (): void {
@@ -46,6 +47,31 @@ Route::prefix('v1')->group(function (): void {
     Route::post('/merchant/orders/{order}/ready', [
         MerchantOrderController::class,
         'markReady',
+    ]);
+
+    Route::get('/driver/orders/available', [
+        DriverDeliveryController::class,
+        'availableOrders',
+    ]);
+
+    Route::get('/driver/deliveries', [
+        DriverDeliveryController::class,
+        'index',
+    ]);
+
+    Route::post('/driver/orders/{order}/delivery', [
+        DriverDeliveryController::class,
+        'accept',
+    ]);
+
+    Route::post('/driver/deliveries/{delivery}/pickup', [
+        DriverDeliveryController::class,
+        'markPickedUp',
+    ]);
+
+    Route::post('/driver/deliveries/{delivery}/complete', [
+        DriverDeliveryController::class,
+        'complete',
     ]);
 });
 
