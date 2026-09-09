@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CategoryController;
+use App\Http\Controllers\Api\V1\StoreController;
+use App\Http\Controllers\Api\V1\StoreProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/auth')->group(function (): void {
@@ -11,4 +14,11 @@ Route::prefix('v1/auth')->group(function (): void {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me', [AuthController::class, 'me']);
     });
+});
+
+Route::prefix('v1')->group(function (): void {
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/stores', [StoreController::class, 'index']);
+    Route::get('/stores/{store}', [StoreController::class, 'show']);
+    Route::get('/stores/{store}/products', [StoreProductController::class, 'index']);
 });
