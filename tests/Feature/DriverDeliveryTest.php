@@ -121,7 +121,7 @@ test('available driver accepts a ready order for delivery', function (): void {
     Sanctum::actingAs($driver);
 
     $this->postJson("/api/v1/driver/orders/{$order->id}/delivery")
-        ->assertOk()
+        ->assertCreated()
         ->assertJsonPath('data.status', DeliveryStatus::Assigned->value);
 
     $this->assertDatabaseHas('deliveries', [
@@ -151,7 +151,7 @@ test('returns 422 when driver accepts another order while having an active deliv
     Sanctum::actingAs($driver);
 
     $this->postJson("/api/v1/driver/orders/{$firstOrder->id}/delivery")
-        ->assertOk();
+        ->assertCreated();
 
     $this->postJson("/api/v1/driver/orders/{$secondOrder->id}/delivery")
         ->assertUnprocessable()
@@ -181,7 +181,7 @@ test('returns 403 when another driver attempts to pick up or complete a delivery
     Sanctum::actingAs($ownerDriver);
 
     $this->postJson("/api/v1/driver/orders/{$order->id}/delivery")
-        ->assertOk();
+        ->assertCreated();
 
     $delivery = Delivery::query()->firstOrFail();
 
@@ -214,7 +214,7 @@ test('driver pickup and completion update delivery and order statuses', function
     Sanctum::actingAs($driver);
 
     $this->postJson("/api/v1/driver/orders/{$order->id}/delivery")
-        ->assertOk();
+        ->assertCreated();
 
     $delivery = Delivery::query()->firstOrFail();
 
