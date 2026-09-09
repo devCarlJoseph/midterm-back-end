@@ -4,6 +4,7 @@ namespace App\Http\Requests\Stores;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class BrowseStoresRequest extends FormRequest
 {
@@ -23,7 +24,12 @@ class BrowseStoresRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'category' => [
+                'nullable',
+                'string',
+                Rule::exists('categories', 'slug'),
+            ],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],   
         ];
     }
 }
