@@ -1,117 +1,120 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AddressController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\CategoryController;
+use App\Http\Controllers\Api\V1\DriverDeliveryController;
+use App\Http\Controllers\Api\V1\MerchantOrderController;
+use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\StoreController;
 use App\Http\Controllers\Api\V1\StoreProductController;
-use App\Http\Controllers\Api\V1\CartController;
-use App\Http\Controllers\Api\V1\AddressController;
-use App\Http\Controllers\Api\V1\OrderController;
-use App\Http\Controllers\Api\V1\MerchantOrderController;
-use App\Http\Controllers\Api\V1\DriverDeliveryController;
-use App\Http\Controllers\Api\V1\NotificationController;
 use Illuminate\Support\Facades\Route;
 
+// Authentication
 Route::prefix('v1/auth')->group(function (): void {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
-
-    Route::middleware('auth:sanctum')->group(function (): void {
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::get('/me', [AuthController::class, 'me']);
-    });
 });
 
+// Public catalog
 Route::prefix('v1')->group(function (): void {
-    Route::get('/categories', [CategoryController::class, 'index']);
-    Route::get('/stores', [StoreController::class, 'index']);
-    Route::get('/stores/{store}', [StoreController::class, 'show']);
-    Route::get('/stores/{store}/products', [StoreProductController::class, 'index']);
+    Route::controller(CategoryController::class)->group(function (): void {
+        Route::get('/categories', 'index');
+    });
 
-    Route::get('/orders', [OrderController::class, 'index']);
-    Route::post('/orders', [OrderController::class, 'store']);
-    Route::get('/orders/{order}', [OrderController::class, 'show']);
+    Route::controller(StoreController::class)
+        ->prefix('stores')
+        ->group(function (): void {
+            Route::get('/', 'index');
+            Route::get('/{store}', 'show');
+        });
 
-    Route::get('/merchant/orders', [MerchantOrderController::class, 'index']);
-    Route::get('/merchant/orders/{order}', [MerchantOrderController::class, 'show']);
-
-    Route::post('/merchant/orders/{order}/accept', [
-        MerchantOrderController::class,
-        'accept',
-    ]);
-
-    Route::post('/merchant/orders/{order}/preparing', [
-        MerchantOrderController::class,
-        'markPreparing',
-    ]);
-
-    Route::post('/merchant/orders/{order}/ready', [
-        MerchantOrderController::class,
-        'markReady',
-    ]);
-
-    Route::get('/driver/orders/available', [
-        DriverDeliveryController::class,
-        'availableOrders',
-    ]);
-
-    Route::get('/driver/deliveries', [
-        DriverDeliveryController::class,
-        'index',
-    ]);
-
-    Route::post('/driver/orders/{order}/delivery', [
-        DriverDeliveryController::class,
-        'accept',
-    ]);
-
-    Route::post('/driver/deliveries/{delivery}/pickup', [
-        DriverDeliveryController::class,
-        'markPickedUp',
-    ]);
-
-    Route::post('/driver/deliveries/{delivery}/complete', [
-        DriverDeliveryController::class,
-        'complete',
-    ]);
+    Route::controller(StoreProductController::class)
+        ->prefix('stores/{store}/products')
+        ->group(function (): void {
+            Route::get('/', 'index');
+        });
 });
 
+// Authenticated API
 Route::prefix('v1')
     ->middleware('auth:sanctum')
     ->scopeBindings()
     ->group(function (): void {
-        Route::post('/stores', [StoreController::class, 'store']);
-        Route::patch('/stores/{store}', [StoreController::class, 'update']);
-        Route::delete('/stores/{store}', [StoreController::class, 'destroy']);
+        // Authenticated account
+        Route::prefix('auth')->controller(AuthController::class)->group(function (): void {
+            Route::post('/logout', 'logout');
+            Route::get('/me', 'me');
+        });
 
-        Route::post('/stores/{store}/products', [StoreProductController::class, 'store']);
-        Route::patch('/stores/{store}/products/{product}', [StoreProductController::class, 'update']);
-        Route::delete('/stores/{store}/products/{product}', [StoreProductController::class, 'destroy']);
+        // Customer: cart and addresses
+        Route::prefix('cart')->controller(CartController::class)->group(function (): void {
+            Route::get('/', 'show');
+            Route::post('/items', 'store');
+            Route::patch('/items/{cartItem}', 'update');
+            Route::delete('/items/{cartItem}', 'destroy');
+        });
 
-        Route::get('/cart', [CartController::class, 'show']);
-        Route::post('/cart/items', [CartController::class, 'store']);
-        Route::patch('/cart/items/{cartItem}', [CartController::class, 'update']);
-        Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy']);
+        Route::prefix('addresses')->controller(AddressController::class)->group(function (): void {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::patch('/{address}', 'update');
+            Route::delete('/{address}', 'destroy');
+        });
 
-        Route::get('/addresses', [AddressController::class, 'index']);
-        Route::post('/addresses', [AddressController::class, 'store']);
-        Route::patch('/addresses/{address}', [AddressController::class, 'update']);
-        Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
+        // Customer: orders
+        Route::prefix('orders')->controller(OrderController::class)->group(function (): void {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::get('/{order}', 'show');
+            Route::post('/{order}/cancel', 'cancel');
+        });
 
-        Route::post('/orders/{order}/cancel', [
-            OrderController::class,
-            'cancel',
-        ]);
+        // Merchant: store and inventory management
+        Route::prefix('stores')->controller(StoreController::class)->group(function (): void {
+            Route::post('/', 'store');
+            Route::patch('/{store}', 'update');
+            Route::delete('/{store}', 'destroy');
+        });
 
-        Route::patch('/driver/availability', [
-            DriverDeliveryController::class,
-            'updateAvailability',
-        ]);
+        Route::prefix('stores/{store}/products')
+            ->controller(StoreProductController::class)
+            ->group(function (): void {
+                Route::post('/', 'store');
+                Route::patch('/{product}', 'update');
+                Route::delete('/{product}', 'destroy');
+            });
 
-        Route::get('/notifications', [NotificationController::class, 'index']);
+        // Merchant: order fulfillment
+        Route::prefix('merchant/orders')
+            ->controller(MerchantOrderController::class)
+            ->group(function (): void {
+                Route::get('/', 'index');
+                Route::get('/{order}', 'show');
+                Route::post('/{order}/accept', 'accept');
+                Route::post('/{order}/preparing', 'markPreparing');
+                Route::post('/{order}/ready', 'markReady');
+            });
 
-        Route::patch('/notifications/{notification}/read', [
-            NotificationController::class,
-            'markAsRead',
-        ]);
+        // Driver: availability and deliveries
+        Route::prefix('driver')->controller(DriverDeliveryController::class)->group(function (): void {
+            Route::patch('/availability', 'updateAvailability');
+
+            Route::get('/orders/available', 'availableOrders');
+            Route::post('/orders/{order}/delivery', 'accept');
+
+            Route::get('/deliveries', 'index');
+            Route::post('/deliveries/{delivery}/pickup', 'markPickedUp');
+            Route::post('/deliveries/{delivery}/complete', 'complete');
+        });
+
+        // User notifications
+        Route::prefix('notifications')
+            ->controller(NotificationController::class)
+            ->group(function (): void {
+                Route::get('/', 'index');
+                Route::patch('/{notification}/read', 'markAsRead');
+            });
     });
