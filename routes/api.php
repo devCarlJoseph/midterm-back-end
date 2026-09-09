@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\StoreController;
 use App\Http\Controllers\Api\V1\StoreProductController;
 use App\Http\Controllers\Api\V1\CartController;
+use App\Http\Controllers\Api\V1\AddressController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/auth')->group(function (): void {
@@ -40,4 +41,9 @@ Route::prefix('v1')
         Route::post('/cart/items', [CartController::class, 'store']);
         Route::patch('/cart/items/{cartItem}', [CartController::class, 'update']);
         Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy']);
+
+        Route::get('/addresses', [AddressController::class, 'index']);
+        Route::post('/addresses', [AddressController::class, 'store']);
+        Route::patch('/addresses/{address}', [AddressController::class, 'update']);
+        Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
     });
