@@ -9,6 +9,10 @@ use App\Models\Store;
 use App\Services\StoreSearchService;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Request;
+use App\Http\Requests\Stores\StoreStoreRequest;
+use App\Http\Requests\Stores\UpdateStoreRequest;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class StoreController extends Controller
 {
@@ -18,8 +22,7 @@ class StoreController extends Controller
     public function index(
         BrowseStoresRequest $request,
         StoreSearchService $storeSearchService,
-    ): AnonymousResourceCollection
-    {
+    ): AnonymousResourceCollection {
         return StoreResource::collection(
             $storeSearchService->find(
                 $request->validated('category'),
@@ -31,9 +34,17 @@ class StoreController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreStoreRequest $request): JsonResponse
     {
-        //
+        $store = Store::query()->create($request->validated());
+
+        $store->user()->attach($request->user(), [
+            'role' => 'owner',
+        ]);
+
+        return (new StoreResource($store))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
@@ -49,16 +60,20 @@ class StoreController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateStoreRequest $request, Store $store): StoreResource
     {
-        //
+        $store->update($request->validated());
+
+        return new StoreResource($store->refresh());
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(UpdateStoreRequest $request, Store $store, ): Response
     {
-        //
+        $store->delete();
+
+        return response()->noContent();
     }
 }

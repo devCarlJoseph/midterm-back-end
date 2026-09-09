@@ -4,6 +4,7 @@ namespace App\Http\Requests\Products;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProductRequest extends FormRequest
 {
@@ -12,7 +13,7 @@ class UpdateProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()?->can('update', $this->route('store')) ?? false;
     }
 
     /**
@@ -23,7 +24,13 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'category_id' => ['sometimes', 'integer', Rule::exists('categories', 'id')],
+            'name' => ['sometimes', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'price' => ['sometimes', 'decimal:0,2', 'min:0'],
+            'stock_quantity' => ['sometimes', 'integer', 'min:0'],
+            'unit' => ['sometimes', 'string', 'max:20'],
+            'is_available' => ['sometimes', 'boolean'], 
         ];
     }
 }

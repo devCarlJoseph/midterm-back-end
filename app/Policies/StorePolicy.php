@@ -4,10 +4,16 @@ namespace App\Policies;
 
 use App\Models\Store;
 use App\Models\User;
+use App\Enums\UserRole;
 use Illuminate\Auth\Access\Response;
 
 class StorePolicy
 {
+
+    public function before(User $user, string $ability): ?bool 
+    {
+        return $user->role === UserRole::Admin ? true : null;
+    }
     /**
      * Determine whether the user can view any models.
      */
@@ -29,7 +35,7 @@ class StorePolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->role === UserRole::Merchant;
     }
 
     /**
@@ -37,7 +43,7 @@ class StorePolicy
      */
     public function update(User $user, Store $store): bool
     {
-        return false;
+        return $user->role === UserRole::Merchant && $store->users()->whereKey($user)->exists();
     }
 
     /**
@@ -45,7 +51,7 @@ class StorePolicy
      */
     public function delete(User $user, Store $store): bool
     {
-        return false;
+        return $this->update($user, $store);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Stores;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateStoreRequest extends FormRequest
 {
@@ -12,7 +13,7 @@ class UpdateStoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()?->can('update', $this->route('store')) ?? false;
     }
 
     /**
@@ -23,7 +24,13 @@ class UpdateStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-        ];
+            'name' => ['sometimes', 'string', 'max:255'],
+            'slug' => ['sometimes', 'string', 'max:255', Rule::unique('stores', 'slug')->ignore($this->route('store'))],
+            'description' => ['nullable', 'string'],
+            'address' => ['sometimes', 'string', 'max:500'],
+            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullabel', 'numeric', 'between:-180,180'],
+            'is_active' => ['sometimes', 'boolean'],
+        ];  
     }
 }

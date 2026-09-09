@@ -8,6 +8,11 @@ use App\Http\Resources\ProductResource;
 use App\Models\Store;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Request;
+use App\Http\Requests\Products\StoreProductRequest;
+use App\Http\Requests\Products\UpdateProductRequest;
+use App\Models\Product;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class StoreProductController extends Controller
 {
@@ -17,8 +22,7 @@ class StoreProductController extends Controller
     public function index(
         BrowseStoresRequest $request,
         Store $store,
-    ): AnonymousResourceCollection
-    {
+    ): AnonymousResourceCollection {
         abort_unless($store->is_active, 404);
 
         return ProductResource::collection(
@@ -41,9 +45,15 @@ class StoreProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        //
+    public function store(
+        StoreProductRequest $request,
+        Store $store,
+    ): JsonResponse {
+        $product = $store->products()->create($request->validated());
+
+        return (new ProductResource($product->load('category')))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
@@ -57,16 +67,26 @@ class StoreProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+    public function update(
+        UpdateProductRequest $request,
+        Store $store,
+        Product $product,
+    ): ProductResource {
+        $product->update($request->validated());
+
+        return new ProductResource($product->refresh()->load('category'));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
+    public function destroy(
+        UpdateProductRequest $request,
+        Store $store,
+        Product $product,
+    ): Response {
+        $product->delete();
+
+        return response()->noContent();
     }
 }
