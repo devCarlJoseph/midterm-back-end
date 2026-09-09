@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('description')->nullable();
             $table->string('address');
-            $table->decima('latitude', 10, 7)->nullable();
-            $table->decima('longitude', 10, 7)->nullable();
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
