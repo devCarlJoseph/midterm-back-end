@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Events\OrderStatusChanged;
 
 class CancelOrder
 {
@@ -57,6 +58,12 @@ class CancelOrder
                 'to_status' => OrderStatus::Cancelled,
                 'changed_by' => $customer->id,
             ]);
+
+            OrderStatusChanged::dispatch(
+                $lockedOrder,
+                OrderStatus::Pending,
+                OrderStatus::Cancelled,
+            );
 
             return $lockedOrder->load('items', 'payment', 'store');
         });

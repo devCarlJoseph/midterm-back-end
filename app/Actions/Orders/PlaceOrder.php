@@ -14,6 +14,7 @@ use App\Services\DeliveryFeeService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use App\Events\OrderPlaced;
 
 class PlaceOrder
 {
@@ -130,6 +131,8 @@ class PlaceOrder
 
             $cart->items()->delete();
             $cart->update(['store_id' => null]);
+
+            OrderPlaced::dispatch($order);
 
             return $order->load('store', 'items', 'payment');
         });

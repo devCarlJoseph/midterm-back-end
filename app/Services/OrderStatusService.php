@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Events\OrderStatusChanged;
 
 class OrderStatusService
 {
@@ -43,6 +44,12 @@ class OrderStatusService
                 'to_status' => $nextStatus,
                 'changed_by' => $changedBy->id,
             ]);
+
+            OrderStatusChanged::dispatch(
+                $lockedOrder,
+                $expectedStatus,
+                $nextStatus,
+            );
 
             return $lockedOrder->load('store', 'items', 'payment');
         });

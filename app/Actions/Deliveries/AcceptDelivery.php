@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Events\DeliveryAssigned;
 
 class AcceptDelivery
 {
@@ -65,6 +66,8 @@ class AcceptDelivery
                 'status' => DeliveryStatus::Assigned,
                 'accepted_at' => now(),
             ]);
+
+            DeliveryAssigned::dispatch($delivery);
 
             return $delivery->load('order.items', 'order.payment');
         });

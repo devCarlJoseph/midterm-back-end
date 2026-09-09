@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\AddressController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\MerchantOrderController;
 use App\Http\Controllers\Api\V1\DriverDeliveryController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/auth')->group(function (): void {
@@ -105,5 +106,12 @@ Route::prefix('v1')
         Route::patch('/driver/availability', [
             DriverDeliveryController::class,
             'updateAvailability',
+        ]);
+
+        Route::get('/notifications', [NotificationController::class, 'index']);
+
+        Route::patch('/notifications/{notification}/read', [
+            NotificationController::class,
+            'markAsRead',
         ]);
     });

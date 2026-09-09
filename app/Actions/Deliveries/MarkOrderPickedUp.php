@@ -8,6 +8,7 @@ use App\Models\Delivery;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Events\OrderStatusChanged;
 
 class MarkOrderPickedUp
 {
@@ -45,6 +46,12 @@ class MarkOrderPickedUp
                 'to_status' => OrderStatus::PickedUp,
                 'changed_by' => $driver->id,
             ]);
+
+            OrderStatusChanged::dispatch(
+                $order,
+                OrderStatus::Ready,
+                OrderStatus::PickedUp,
+            );
 
             return $lockedDelivery->refresh()->load('order.items', 'order.payment');
         });
