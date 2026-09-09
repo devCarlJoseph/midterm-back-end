@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('store_user', function (Blueprint $table): void {
+        Schema::create('carts', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('store_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('role')->default('owner');
+            $table->foreignId('store_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
 
-            $table->unique(['store_id', 'user_id']);
+            $table->unique('user_id');
         });
     }
 
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('store_user');
+        Schema::dropIfExists('carts');
     }
 };

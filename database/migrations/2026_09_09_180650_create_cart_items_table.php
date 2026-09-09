@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('store_user', function (Blueprint $table): void {
+        Schema::create('cart_items', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('store_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('role')->default('owner');
+            $table->foreignId('cart_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
+            $table->unsignedInteger('quantity');
             $table->timestamps();
 
-            $table->unique(['store_id', 'user_id']);
+            $table->unique(['cart_id', 'product_id']);
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('store_user');
+        Schema::dropIfExists('cart_items');
     }
 };

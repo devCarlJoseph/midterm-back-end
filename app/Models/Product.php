@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['category_id', 'name', 'description', 'price', 'stock_quantity', 'unit', 'is_available'])]
 
@@ -39,5 +40,10 @@ class Product extends Model
         return $query
             ->where('is_available', true)
             ->where('stock_quantity', '>', 0);
+    }
+
+    public function cartItems(): HasMany
+    {
+        return $this->hasMany(CartItem::class);
     }
 }
