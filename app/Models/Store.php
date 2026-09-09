@@ -11,7 +11,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
-    'name', 'slug', 'description', 'address', 'latitude', 'longitude', 'is_active',
+    'name',
+    'slug',
+    'description',
+    'address',
+    'latitude',
+    'longitude',
+    'is_active',
 ])]
 
 class Store extends Model
@@ -44,5 +50,10 @@ class Store extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
     }
 }

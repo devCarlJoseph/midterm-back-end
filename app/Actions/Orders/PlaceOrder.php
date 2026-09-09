@@ -2,13 +2,143 @@
 
 namespace App\Actions\Orders;
 
+use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
+use App\Enums\PaymentStatus;
+use App\Models\Address;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+
 class PlaceOrder
 {
-    /**
-     * Create a new class instance.
-     */
-    public function __construct()
+    public function handle(
+        User $user,
+        int $addressId,
+        PaymentMethod $paymentMethod,
+    ): Order {
+        return DB::transaction(function () use ($user, $addressId, $paymentMethod): Order {
+            $address = $user->addresses()->findOrFail($addressId);
+
+            $cart = $user->cart()->first();
+
+            if ($cart === null || $cart->store_id === null || ! $cart->items()->exists()) {
+                throw ValidationException::withMessages([
+                    'cart' => ['Your cart is empty.'],
+                ]);
+            }
+
+            $cartItems = $cart->items()
+                ->orderBy('product_id')
+                ->get();
+
+            $products = Product::query()
+                ->whereKey($cartItems->pluck('product_id'))
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            $lines = [];
+            $subtotalInCentavos = 0;
+
+            foreach ($cartItems as $cartItem) {
+                $product = $products->get($cartItem->product_id);
+
+                if (
+                    $product === null
+                    || ! $product->is_available
+                    || $product->store_id !== $cart->store_id
+                    || $product->stock_quantity < $cartItem->quantity
+                ) {
+                    throw ValidationException::withMessages([
+                        'cart' => ['One or more products are unavailable or out of stock.'],
+                    ]);
+                }
+
+                $unitPriceInCentavos = (int) round(((float) $product->price) * 100);
+                $lineTotalInCentavos = $unitPriceInCentavos * $cartItem->quantity;
+
+                $subtotalInCentavos += $lineTotalInCentavos;
+
+                $lines[] = [
+                    'product' => $product,
+                    'quantity' => $cartItem->quantity,
+                    'unit_price' => $this->money($unitPriceInCentavos),
+                    'line_total' => $this->money($lineTotalInCentavos),
+                ];
+            }
+
+            $order = Order::query()->create([
+                'order_number' => 'DALI-'.Str::upper((string) Str::uuid()),
+                'user_id' => $user->id,
+                'store_id' => $cart->store_id,
+                'address_id' => $address->id,
+                'delivery_address' => $this->addressSnapshot($address),
+                'status' => OrderStatus::Pending,
+                'payment_method' => $paymentMethod,
+                'subtotal' => $this->money($subtotalInCentavos),
+                'delivery_fee' => '0.00',
+                'total' => $this->money($subtotalInCentavos),
+            ]);
+
+            foreach ($lines as $line) {
+                $product = $line['product'];
+
+                $order->items()->create([
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'unit' => $product->unit,
+                    'unit_price' => $line['unit_price'],
+                    'quantity' => $line['quantity'],
+                    'line_total' => $line['line_total'],
+                ]);
+
+                $product->decrement('stock_quantity', $line['quantity']);
+            }
+
+            $order->payment()->create([
+                'method' => $paymentMethod,
+                'status' => PaymentStatus::Pending,
+                'amount' => $order->total,
+            ]);
+
+            $order->statusHistory()->create([
+                'from_status' => null,
+                'to_status' => OrderStatus::Pending,
+                'changed_by' => $user->id,
+            ]);
+
+            $cart->items()->delete();
+            $cart->update(['store_id' => null]);
+
+            return $order->load('store', 'items', 'payment');
+        });
+    }
+
+    private function money(int $centavos): string
     {
-        //
+        return number_format($centavos / 100, 2, '.', '');
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    private function addressSnapshot(Address $address): array
+    {
+        return [
+            'label' => $address->label,
+            'recipient_name' => $address->recipient_name,
+            'phone' => $address->phone,
+            'line_one' => $address->line_one,
+            'line_two' => $address->line_two,
+            'barangay' => $address->barangay,
+            'city' => $address->city,
+            'province' => $address->province,
+            'postal_code' => $address->postal_code,
+        ];
     }
 }

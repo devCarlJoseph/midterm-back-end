@@ -2,28 +2,23 @@
 
 namespace App\Http\Requests\Orders;
 
-use Illuminate\Contracts\Validation\ValidationRule;
+use App\Enums\PaymentMethod;
+use App\Enums\UserRole;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class PlaceOrderRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()?->role === UserRole::Customer;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'address_id' => ['required', 'integer', Rule::exists('addresses', 'id')],
+            'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
         ];
     }
 }
