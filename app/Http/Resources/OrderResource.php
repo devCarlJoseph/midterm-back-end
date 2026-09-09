@@ -30,6 +30,10 @@ class OrderResource extends JsonResource
                 'amount' => $this->payment->amount,
             ]),
             'created_at' => $this->created_at?->toISOString(),
+            'pickup_distance_kilometers' => $this->when(
+                isset($this->pickup_distance_kilometers),
+                $this->pickup_distance_kilometers,
+            ),
         ];
     }
 }

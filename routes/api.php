@@ -101,4 +101,9 @@ Route::prefix('v1')
             OrderController::class,
             'cancel',
         ]);
+
+        Route::patch('/driver/availability', [
+            DriverDeliveryController::class,
+            'updateAvailability',
+        ]);
     });

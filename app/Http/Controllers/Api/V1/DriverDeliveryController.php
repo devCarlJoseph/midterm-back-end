@@ -16,20 +16,20 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Requests\Drivers\UpdateDriverAvailabilityRequest;
+use App\Services\DriverMatchingService;
+use Illuminate\Http\JsonResponse;
 
 class DriverDeliveryController extends Controller
 {
-    public function availableOrders(): AnonymousResourceCollection
-    {
+    public function availableOrders(
+        Request $request,
+        DriverMatchingService $driverMatchingService,
+    ): AnonymousResourceCollection {
         Gate::authorize('viewAvailable', Delivery::class);
 
         return OrderResource::collection(
-            Order::query()
-                ->where('status', OrderStatus::Ready)
-                ->doesntHave('delivery')
-                ->with('items', 'store')
-                ->orderBy('id')
-                ->paginate(),
+            $driverMatchingService->availableOrdersFor($request->user()),
         );
     }
 
@@ -74,5 +74,21 @@ class DriverDeliveryController extends Controller
         return new DeliveryResource(
             $completeDelivery->handle($delivery, $request->user()),
         );
+    }
+
+    public function updateAvailability(
+        UpdateDriverAvailabilityRequest $request,
+    ): JsonResponse {
+        $driver = $request->user();
+
+        $driver->update($request->validated());
+
+        return response()->json([
+            'data' => [
+                'is_available_for_delivery' => $driver->is_available_for_delivery,
+                'latitude' => $driver->latitude,
+                'longitude' => $driver->longitude,
+            ],
+        ]);
     }
 }

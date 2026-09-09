@@ -15,6 +15,34 @@ class AcceptDelivery
     public function handle(Order $order, User $driver): Delivery
     {
         return DB::transaction(function () use ($order, $driver): Delivery {
+            $lockedDriver = User::query()
+                ->lockForUpdate()
+                ->findOrFail($driver->id);
+
+            if (
+                ! $lockedDriver->is_available_for_delivery
+                || $lockedDriver->latitude === null
+                || $lockedDriver->longitude === null
+            ) {
+                throw ValidationException::withMessages([
+                    'driver' => ['You must be available and provide your current location.'],
+                ]);
+            }
+
+            $hasActiveDelivery = Delivery::query()
+                ->where('driver_id', $lockedDriver->id)
+                ->whereIn('status', [
+                    DeliveryStatus::Assigned,
+                    DeliveryStatus::PickedUp,
+                ])
+                ->exists();
+
+            if ($hasActiveDelivery) {
+                throw ValidationException::withMessages([
+                    'delivery' => ['You already have an active delivery.'],
+                ]);
+            }
+
             $lockedOrder = Order::query()
                 ->lockForUpdate()
                 ->findOrFail($order->id);
@@ -33,7 +61,7 @@ class AcceptDelivery
 
             $delivery = Delivery::query()->create([
                 'order_id' => $lockedOrder->id,
-                'driver_id' => $driver->id,
+                'driver_id' => $lockedDriver->id,
                 'status' => DeliveryStatus::Assigned,
                 'accepted_at' => now(),
             ]);
