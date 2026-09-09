@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\StoreProductController;
 use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\AddressController;
 use App\Http\Controllers\Api\V1\OrderController;
+use App\Http\Controllers\Api\V1\MerchantOrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/auth')->group(function (): void {
@@ -28,6 +29,24 @@ Route::prefix('v1')->group(function (): void {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders/{order}', [OrderController::class, 'show']);
+
+    Route::get('/merchant/orders', [MerchantOrderController::class, 'index']);
+    Route::get('/merchant/orders/{order}', [MerchantOrderController::class, 'show']);
+
+    Route::post('/merchant/orders/{order}/accept', [
+        MerchantOrderController::class,
+        'accept',
+    ]);
+
+    Route::post('/merchant/orders/{order}/preparing', [
+        MerchantOrderController::class,
+        'markPreparing',
+    ]);
+
+    Route::post('/merchant/orders/{order}/ready', [
+        MerchantOrderController::class,
+        'markReady',
+    ]);
 });
 
 Route::prefix('v1')
