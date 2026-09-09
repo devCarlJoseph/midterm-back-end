@@ -8,13 +8,20 @@ use App\Enums\PaymentStatus;
 use App\Models\Address;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Store;
 use App\Models\User;
+use App\Services\DeliveryFeeService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class PlaceOrder
 {
+    public function __construct(
+        private DeliveryFeeService $deliveryFeeService,
+    ) {
+    }
+
     public function handle(
         User $user,
         int $addressId,
@@ -30,6 +37,8 @@ class PlaceOrder
                     'cart' => ['Your cart is empty.'],
                 ]);
             }
+
+            $store = Store::query()->findOrFail($cart->store_id);
 
             $cartItems = $cart->items()
                 ->orderBy('product_id')
@@ -72,17 +81,24 @@ class PlaceOrder
                 ];
             }
 
+            $deliveryFeeInCentavos = $this->deliveryFeeService->calculateInCentavos(
+                $store,
+                $address,
+            );
+
+            $totalInCentavos = $subtotalInCentavos + $deliveryFeeInCentavos;
+
             $order = Order::query()->create([
                 'order_number' => 'DALI-'.Str::upper((string) Str::uuid()),
                 'user_id' => $user->id,
-                'store_id' => $cart->store_id,
+                'store_id' => $store->id,
                 'address_id' => $address->id,
                 'delivery_address' => $this->addressSnapshot($address),
                 'status' => OrderStatus::Pending,
                 'payment_method' => $paymentMethod,
                 'subtotal' => $this->money($subtotalInCentavos),
-                'delivery_fee' => '0.00',
-                'total' => $this->money($subtotalInCentavos),
+                'delivery_fee' => $this->money($deliveryFeeInCentavos),
+                'total' => $this->money($totalInCentavos),
             ]);
 
             foreach ($lines as $line) {
