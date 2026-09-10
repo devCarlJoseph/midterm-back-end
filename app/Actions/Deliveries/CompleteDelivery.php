@@ -4,11 +4,11 @@ namespace App\Actions\Deliveries;
 
 use App\Enums\DeliveryStatus;
 use App\Enums\OrderStatus;
+use App\Events\OrderStatusChanged;
 use App\Models\Delivery;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use App\Events\OrderStatusChanged;
 
 class CompleteDelivery
 {

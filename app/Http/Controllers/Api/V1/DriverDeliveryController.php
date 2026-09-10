@@ -5,20 +5,19 @@ namespace App\Http\Controllers\Api\V1;
 use App\Actions\Deliveries\AcceptDelivery;
 use App\Actions\Deliveries\CompleteDelivery;
 use App\Actions\Deliveries\MarkOrderPickedUp;
-use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Deliveries\AcceptDeliveryRequest;
 use App\Http\Requests\Deliveries\UpdateDeliveryRequest;
+use App\Http\Requests\Drivers\UpdateDriverAvailabilityRequest;
 use App\Http\Resources\DeliveryResource;
 use App\Http\Resources\OrderResource;
 use App\Models\Delivery;
 use App\Models\Order;
+use App\Services\DriverMatchingService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
-use App\Http\Requests\Drivers\UpdateDriverAvailabilityRequest;
-use App\Services\DriverMatchingService;
-use Illuminate\Http\JsonResponse;
 
 class DriverDeliveryController extends Controller
 {

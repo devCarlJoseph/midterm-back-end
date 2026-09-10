@@ -13,7 +13,7 @@ class BrowseStoresRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,7 +29,7 @@ class BrowseStoresRequest extends FormRequest
                 'string',
                 Rule::exists('categories', 'slug'),
             ],
-            'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],   
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
         ];
     }
 }

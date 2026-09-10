@@ -21,7 +21,7 @@ class StoreSearchService
                 });
             })
             ->orderBy('name')
-            ->paginates($perPage);
-            
+            ->paginate($perPage);
+
     }
 }

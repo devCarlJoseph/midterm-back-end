@@ -4,14 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Stores\BrowseStoresRequest;
+use App\Http\Requests\Stores\StoreStoreRequest;
+use App\Http\Requests\Stores\UpdateStoreRequest;
 use App\Http\Resources\StoreResource;
 use App\Models\Store;
 use App\Services\StoreSearchService;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Http\Request;
-use App\Http\Requests\Stores\StoreStoreRequest;
-use App\Http\Requests\Stores\UpdateStoreRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Symfony\Component\HttpFoundation\Response;
 
 class StoreController extends Controller
@@ -70,7 +69,7 @@ class StoreController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(UpdateStoreRequest $request, Store $store, ): Response
+    public function destroy(UpdateStoreRequest $request, Store $store): Response
     {
         $store->delete();
 

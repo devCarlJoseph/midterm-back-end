@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User;
 use App\Services\Auth\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -45,7 +44,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout(Request $request, AuthService $authService): JsonResponse 
+    public function logout(Request $request, AuthService $authService): JsonResponse
     {
         $user = $request->user();
 

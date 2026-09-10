@@ -3,11 +3,11 @@
 namespace App\Services;
 
 use App\Enums\OrderStatus;
+use App\Events\OrderStatusChanged;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use App\Events\OrderStatusChanged;
 
 class OrderStatusService
 {

@@ -2,18 +2,17 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\Store;
 use App\Models\User;
-use App\Enums\UserRole;
-use Illuminate\Auth\Access\Response;
 
 class StorePolicy
 {
-
-    public function before(User $user, string $ability): ?bool 
+    public function before(User $user, string $ability): ?bool
     {
         return $user->role === UserRole::Admin ? true : null;
     }
+
     /**
      * Determine whether the user can view any models.
      */

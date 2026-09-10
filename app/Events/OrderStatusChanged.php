@@ -16,6 +16,5 @@ class OrderStatusChanged implements ShouldDispatchAfterCommit
         public Order $order,
         public OrderStatus $fromStatus,
         public OrderStatus $toStatus,
-    ) {
-    }
+    ) {}
 }

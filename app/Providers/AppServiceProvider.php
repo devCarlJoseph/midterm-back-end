@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use App\Contracts\DistanceCalculator;
 use App\Services\HaversineDistanceCalculator;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
             HaversineDistanceCalculator::class,
         );
     }
+
     /**
      * Bootstrap any application services.
      */

@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\Orders\CancelOrder;
 use App\Actions\Orders\PlaceOrder;
+use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Orders\CancelOrderRequest;
 use App\Http\Requests\Orders\PlaceOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Gate;
-use App\Actions\Orders\CancelOrder;
-use App\Http\Requests\Orders\CancelOrderRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class OrderController extends Controller
 {
@@ -42,7 +43,7 @@ class OrderController extends Controller
             $request->user(),
             $request->integer('address_id'),
             $request->integer('delivery_option_id'),
-            $request->enum('payment_method', \App\Enums\PaymentMethod::class),
+            $request->enum('payment_method', PaymentMethod::class),
         );
 
         return (new OrderResource($order))

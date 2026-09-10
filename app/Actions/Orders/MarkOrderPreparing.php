@@ -11,8 +11,7 @@ class MarkOrderPreparing
 {
     public function __construct(
         private OrderStatusService $orderStatusService,
-    ) {
-    }
+    ) {}
 
     public function handle(Order $order, User $merchant): Order
     {

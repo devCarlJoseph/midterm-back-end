@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\DeliveryOptionName;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Store;
@@ -12,12 +13,28 @@ class DaliCatalogSeeder extends Seeder
 {
     public function run(): void
     {
+        if ($oldMeat = Category::query()->where('slug', 'meat')->first()) {
+            $oldMeat->update([
+                'name' => 'Meat & Fish',
+                'slug' => 'meat-fish',
+            ]);
+        }
+
+        if ($oldVeg = Category::query()->where('slug', 'vegetables-fruits')->first()) {
+            $oldVeg->update([
+                'name' => 'Vegetables & Fruit',
+                'slug' => 'vegetables-fruit',
+            ]);
+        }
+
         $categories = collect([
-            'Meat',
-            'Dairy & Eggs',
-            'Vegetables & Fruits',
             'Snacks',
+            'Vegetables & Fruit',
             'Packed Foods',
+            'Dairy & Eggs',
+            'Bakery',
+            'Meat & Fish',
+            'Alcohol',
         ])->mapWithKeys(function (string $name): array {
             $category = Category::query()->firstOrCreate(
                 ['slug' => Str::slug($name)],
@@ -83,7 +100,7 @@ class DaliCatalogSeeder extends Seeder
                 'latitude' => 10.2624,
                 'longitude' => 123.9531,
                 'products' => [
-                    'Meat' => [
+                    'Meat & Fish' => [
                         'Beef Chuck',
                         'Ground Beef',
                         'Ground Pork',
@@ -99,7 +116,7 @@ class DaliCatalogSeeder extends Seeder
                 'latitude' => 10.2468,
                 'longitude' => 123.9462,
                 'products' => [
-                    'Meat' => [
+                    'Meat & Fish' => [
                         'Pork Feet',
                         'Whole Chicken',
                         'Chicken Nuggets',
@@ -116,7 +133,7 @@ class DaliCatalogSeeder extends Seeder
                 'latitude' => 10.2851,
                 'longitude' => 123.9617,
                 'products' => [
-                    'Meat' => [
+                    'Meat & Fish' => [
                         'Pork Belly',
                         'Chicken Feet',
                         'Whole Chicken',
@@ -133,7 +150,7 @@ class DaliCatalogSeeder extends Seeder
                 'latitude' => 10.3152,
                 'longitude' => 123.9365,
                 'products' => [
-                    'Meat' => [
+                    'Meat & Fish' => [
                         'Chicken Wings',
                         'Chicken Thigh',
                         'Drumsticks',
@@ -162,7 +179,7 @@ class DaliCatalogSeeder extends Seeder
                 'latitude' => 10.2415,
                 'longitude' => 123.9448,
                 'products' => [
-                    'Meat' => [
+                    'Meat & Fish' => [
                         'Rabbit Fish (Danggit)',
                         'Bangus',
                         'Tamban',
@@ -333,7 +350,7 @@ class DaliCatalogSeeder extends Seeder
                 'latitude' => 10.2569,
                 'longitude' => 123.9471,
                 'products' => [
-                    'Vegetables & Fruits' => [
+                    'Vegetables & Fruit' => [
                         'Cabbage',
                         'Carrots',
                         'Onion',
@@ -363,7 +380,7 @@ class DaliCatalogSeeder extends Seeder
                 'latitude' => 10.3026,
                 'longitude' => 123.9298,
                 'products' => [
-                    'Vegetables & Fruits' => [
+                    'Vegetables & Fruit' => [
                         'Eggplant',
                         'Okra',
                         'Bokchoy',
@@ -398,7 +415,7 @@ class DaliCatalogSeeder extends Seeder
                 'latitude' => 10.3238,
                 'longitude' => 123.9147,
                 'products' => [
-                    'Vegetables & Fruits' => [
+                    'Vegetables & Fruit' => [
                         'Carrots',
                         'Cabbage',
                         'Bell Pepper',
@@ -431,7 +448,7 @@ class DaliCatalogSeeder extends Seeder
                 'latitude' => 10.2935,
                 'longitude' => 123.9589,
                 'products' => [
-                    'Vegetables & Fruits' => [
+                    'Vegetables & Fruit' => [
                         'Carrots',
                         'Chilli',
                         'Bell Pepper',
@@ -753,6 +770,42 @@ class DaliCatalogSeeder extends Seeder
                     ],
                 ],
             ],
+            [
+                'name' => 'Cordova Bakehouse & Pastries',
+                'description' => 'Freshly baked breads, pastries, cakes, and treats.',
+                'latitude' => 10.2745,
+                'longitude' => 123.9492,
+                'products' => [
+                    'Bakery' => [
+                        'Pandesal',
+                        'Ensaymada',
+                        'Sliced Bread',
+                        'Buns & Rolls',
+                        'Chocolate Cake',
+                        'Croissants',
+                        'Muffins',
+                        'Donuts',
+                    ],
+                ],
+            ],
+            [
+                'name' => 'Cordova Spirits & Beverage Depot',
+                'description' => 'Wines, beers, spirits, and beverage supplier.',
+                'latitude' => 10.2823,
+                'longitude' => 123.9431,
+                'products' => [
+                    'Alcohol' => [
+                        'San Miguel Beer',
+                        'Red Horse Beer',
+                        'Cabernet Sauvignon Wine',
+                        'Chardonnay Wine',
+                        'Emperador Brandy',
+                        'Tanduay Rum',
+                        'Smirnoff Vodka',
+                        'Johnnie Walker Whiskey',
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -876,6 +929,24 @@ class DaliCatalogSeeder extends Seeder
             'Giniling' => 180.00,
             'Chicken Adobo' => 180.00,
             'Pork Menudo' => 190.00,
+
+            'Pandesal' => 5.00,
+            'Ensaymada' => 35.00,
+            'Sliced Bread' => 65.00,
+            'Buns & Rolls' => 45.00,
+            'Chocolate Cake' => 450.00,
+            'Croissants' => 65.00,
+            'Muffins' => 50.00,
+            'Donuts' => 40.00,
+
+            'San Miguel Beer' => 60.00,
+            'Red Horse Beer' => 65.00,
+            'Cabernet Sauvignon Wine' => 480.00,
+            'Chardonnay Wine' => 450.00,
+            'Emperador Brandy' => 160.00,
+            'Tanduay Rum' => 140.00,
+            'Smirnoff Vodka' => 390.00,
+            'Johnnie Walker Whiskey' => 880.00,
         ];
 
         if (array_key_exists($productName, $prices)) {
@@ -885,6 +956,8 @@ class DaliCatalogSeeder extends Seeder
         return match ($categoryName) {
             'Snacks' => 55.00,
             'Packed Foods' => 65.00,
+            'Bakery' => 50.00,
+            'Alcohol' => 150.00,
             default => 100.00,
         };
     }
@@ -971,6 +1044,17 @@ class DaliCatalogSeeder extends Seeder
             'Sinandomeng',
         ];
 
+        $bottleProducts = [
+            'San Miguel Beer',
+            'Red Horse Beer',
+            'Cabernet Sauvignon Wine',
+            'Chardonnay Wine',
+            'Emperador Brandy',
+            'Tanduay Rum',
+            'Smirnoff Vodka',
+            'Johnnie Walker Whiskey',
+        ];
+
         $packProducts = [
             'Strawberry',
             'Raspberry',
@@ -978,6 +1062,8 @@ class DaliCatalogSeeder extends Seeder
             'Blackberry',
             'Cherry',
             'Kiwi',
+            'Sliced Bread',
+            'Buns & Rolls',
         ];
 
         if (in_array($productName, $dozenProducts, true)) {
@@ -988,12 +1074,17 @@ class DaliCatalogSeeder extends Seeder
             return 'kg';
         }
 
+        if (in_array($productName, $bottleProducts, true)) {
+            return 'bottle';
+        }
+
         if (in_array($productName, $packProducts, true)) {
             return 'pack';
         }
 
         return match ($categoryName) {
             'Snacks' => 'pack',
+            'Alcohol' => 'bottle',
             default => 'piece',
         };
     }
@@ -1002,19 +1093,19 @@ class DaliCatalogSeeder extends Seeder
     {
         $options = [
             [
-                'name' => \App\Enums\DeliveryOptionName::Saver,
+                'name' => DeliveryOptionName::Saver,
                 'description' => 'Lowest-cost delivery option.',
                 'additional_fee' => 0.00,
                 'estimated_delivery_minutes' => 90,
             ],
             [
-                'name' => \App\Enums\DeliveryOptionName::Standard,
+                'name' => DeliveryOptionName::Standard,
                 'description' => 'Balanced delivery speed and price.',
                 'additional_fee' => 25.00,
                 'estimated_delivery_minutes' => 60,
             ],
             [
-                'name' => \App\Enums\DeliveryOptionName::Express,
+                'name' => DeliveryOptionName::Express,
                 'description' => 'Fastest delivery option.',
                 'additional_fee' => 50.00,
                 'estimated_delivery_minutes' => 30,

@@ -4,12 +4,12 @@ namespace App\Actions\Deliveries;
 
 use App\Enums\DeliveryStatus;
 use App\Enums\OrderStatus;
+use App\Events\DeliveryAssigned;
 use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use App\Events\DeliveryAssigned;
 
 class AcceptDelivery
 {

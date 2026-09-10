@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('price', 12, 2);
             $table->unsignedInteger('stock_quantity')->default(0);
-            $table->string('unit', 20); //kg, piece, pack
+            $table->string('unit', 20); // kg, piece, pack
             $table->boolean('is_available')->default(true);
             $table->timestamps();
         });

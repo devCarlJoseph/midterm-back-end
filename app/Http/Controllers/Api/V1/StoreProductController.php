@@ -3,15 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Stores\BrowseStoresRequest;
-use App\Http\Resources\ProductResource;
-use App\Models\Store;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Http\Request;
 use App\Http\Requests\Products\StoreProductRequest;
 use App\Http\Requests\Products\UpdateProductRequest;
+use App\Http\Requests\Stores\BrowseStoresRequest;
+use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use App\Models\Store;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Symfony\Component\HttpFoundation\Response;
 
 class StoreProductController extends Controller

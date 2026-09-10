@@ -4,13 +4,12 @@ namespace App\Services\Auth;
 
 use App\Enums\UserRole;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
-use Illuminate\Support\Facades\Hash;
 
 class AuthService
 {
-
     public function register(array $data): array
     {
         $user = User::create([

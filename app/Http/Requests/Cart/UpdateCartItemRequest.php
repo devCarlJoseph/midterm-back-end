@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Cart;
 
-use App\Models\Cart;
 use App\Models\CartItem;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;

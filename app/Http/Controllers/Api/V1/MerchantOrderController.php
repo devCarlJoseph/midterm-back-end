@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\V1;
 use App\Actions\Orders\AcceptOrder;
 use App\Actions\Orders\MarkOrderPreparing;
 use App\Actions\Orders\MarkOrderReady;
-use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Orders\UpdateMerchantOrderStatusRequest;
 use App\Http\Resources\OrderResource;

@@ -2,10 +2,10 @@
 
 namespace App\Policies;
 
+use App\Enums\OrderStatus;
 use App\Enums\UserRole;
 use App\Models\Order;
 use App\Models\User;
-use App\Enums\OrderStatus;
 
 class OrderPolicy
 {
@@ -28,9 +28,9 @@ class OrderPolicy
 
         return $user->role === UserRole::Merchant
             && $order->store
-            ->users()
-            ->whereKey($user)
-            ->exists();
+                ->users()
+                ->whereKey($user)
+                ->exists();
     }
 
     public function viewMerchantOrders(User $user): bool

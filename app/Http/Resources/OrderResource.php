@@ -24,7 +24,7 @@ class OrderResource extends JsonResource
             'delivery_fee' => $this->delivery_fee,
             'delivery_option' => $this->when(
                 $this->delivery_option_name !== null,
-                fn() => [
+                fn () => [
                     'id' => $this->delivery_option_id,
                     'name' => $this->delivery_option_name->value,
                     'estimated_delivery_minutes' => $this->estimated_delivery_minutes,
@@ -32,7 +32,7 @@ class OrderResource extends JsonResource
             ),
             'total' => $this->total,
             'items' => OrderItemResource::collection($this->whenLoaded('items')),
-            'payment' => $this->whenLoaded('payment', fn() => [
+            'payment' => $this->whenLoaded('payment', fn () => [
                 'method' => $this->payment->method->value,
                 'status' => $this->payment->status->value,
                 'amount' => $this->payment->amount,

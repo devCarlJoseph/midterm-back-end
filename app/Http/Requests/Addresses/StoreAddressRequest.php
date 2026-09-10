@@ -2,13 +2,14 @@
 
 namespace App\Http\Requests\Addresses;
 
+use App\Models\Address;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreAddressRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('create', \App\Models\Address::class) ?? false;
+        return $this->user()?->can('create', Address::class) ?? false;
     }
 
     public function rules(): array

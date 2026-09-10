@@ -5,7 +5,9 @@ namespace App\Actions\Orders;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
+use App\Events\OrderPlaced;
 use App\Models\Address;
+use App\Models\DeliveryOption;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Store;
@@ -14,8 +16,6 @@ use App\Services\DeliveryFeeService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use App\Events\OrderPlaced;
-use App\Models\DeliveryOption;
 
 class PlaceOrder
 {
@@ -29,7 +29,7 @@ class PlaceOrder
         int $deliveryOptionId,
         PaymentMethod $paymentMethod,
     ): Order {
-        return DB::transaction(function () use ($user, $addressId, $paymentMethod, $deliveryOptionId,): Order {
+        return DB::transaction(function () use ($user, $addressId, $paymentMethod, $deliveryOptionId): Order {
             $address = $user->addresses()->findOrFail($addressId);
 
             $cart = $user->cart()->first();
@@ -105,7 +105,7 @@ class PlaceOrder
             $totalInCentavos = $subtotalInCentavos + $deliveryFeeInCentavos;
 
             $order = Order::query()->create([
-                'order_number' => 'DALI-' . Str::upper((string) Str::uuid()),
+                'order_number' => 'DALI-'.Str::upper((string) Str::uuid()),
                 'user_id' => $user->id,
                 'store_id' => $store->id,
                 'address_id' => $address->id,

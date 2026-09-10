@@ -12,8 +12,7 @@ class DriverMatchingService
 {
     public function __construct(
         private DistanceCalculator $distanceCalculator,
-    ) {
-    }
+    ) {}
 
     /**
      * @return Collection<int, Order>
@@ -25,7 +24,7 @@ class DriverMatchingService
             || $driver->latitude === null
             || $driver->longitude === null
         ) {
-            return new Collection();
+            return new Collection;
         }
 
         $radiusInKilometers = (float) config(

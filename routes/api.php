@@ -9,8 +9,8 @@ use App\Http\Controllers\Api\V1\MerchantOrderController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\StoreController;
-use App\Http\Controllers\Api\V1\StoreProductController;
 use App\Http\Controllers\Api\V1\StoreDeliveryOptionController;
+use App\Http\Controllers\Api\V1\StoreProductController;
 use Illuminate\Support\Facades\Route;
 
 // Authentication
@@ -43,6 +43,21 @@ Route::prefix('v1')->group(function (): void {
         ->group(function (): void {
             Route::get('/', 'index');
         });
+
+    Route::get('/products', function (\Illuminate\Http\Request $request) {
+        return \App\Http\Resources\ProductResource::collection(
+            \App\Models\Product::query()
+                ->available()
+                ->with('category:id,name,slug')
+                ->when($request->query('category'), function ($query, $slug): void {
+                    $query->whereHas('category', function ($categoryQuery) use ($slug): void {
+                        $categoryQuery->where('slug', $slug);
+                    });
+                })
+                ->orderBy('name')
+                ->paginate($request->integer('per_page', 50))
+        );
+    });
 });
 
 // Authenticated API
@@ -59,7 +74,10 @@ Route::prefix('v1')
         // Customer: cart and addresses
         Route::prefix('cart')->controller(CartController::class)->group(function (): void {
             Route::get('/', 'show');
+            Route::delete('/', 'clear');
             Route::post('/items', 'store');
+            Route::patch('/items/product/{product}', 'updateByProduct');
+            Route::delete('/items/product/{product}', 'destroyByProduct');
             Route::patch('/items/{cartItem}', 'update');
             Route::delete('/items/{cartItem}', 'destroy');
         });

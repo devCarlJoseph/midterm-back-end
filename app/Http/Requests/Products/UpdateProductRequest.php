@@ -30,7 +30,7 @@ class UpdateProductRequest extends FormRequest
             'price' => ['sometimes', 'decimal:0,2', 'min:0'],
             'stock_quantity' => ['sometimes', 'integer', 'min:0'],
             'unit' => ['sometimes', 'string', 'max:20'],
-            'is_available' => ['sometimes', 'boolean'], 
+            'is_available' => ['sometimes', 'boolean'],
         ];
     }
 }

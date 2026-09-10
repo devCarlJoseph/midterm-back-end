@@ -12,8 +12,7 @@ class DeliveryFeeService
 {
     public function __construct(
         private DistanceCalculator $distanceCalculator,
-    ) {
-    }
+    ) {}
 
     public function calculateInCentavos(
         Store $store,

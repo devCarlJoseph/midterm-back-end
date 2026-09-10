@@ -13,6 +13,5 @@ class DeliveryAssigned implements ShouldDispatchAfterCommit
 
     public function __construct(
         public Delivery $delivery,
-    ) {
-    }
+    ) {}
 }

@@ -1,7 +1,6 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Store;

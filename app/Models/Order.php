@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\DeliveryOptionName;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -9,8 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use App\Enums\DeliveryOptionName;
-
 
 #[Fillable([
     'order_number',
