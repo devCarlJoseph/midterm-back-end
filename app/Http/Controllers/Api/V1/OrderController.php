@@ -41,6 +41,7 @@ class OrderController extends Controller
         $order = $placeOrder->handle(
             $request->user(),
             $request->integer('address_id'),
+            $request->integer('delivery_option_id'),
             $request->enum('payment_method', \App\Enums\PaymentMethod::class),
         );
 

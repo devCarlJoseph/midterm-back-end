@@ -1,8 +1,8 @@
 <?php
 
+use App\Enums\DeliveryOptionName;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
-use App\Models\Address;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
@@ -18,6 +18,14 @@ function createCheckoutData(User $customer, int $stock = 5, int $quantity = 2): 
     $store = Store::factory()->create([
         'latitude' => 14.5995,
         'longitude' => 120.9842,
+    ]);
+
+    $deliveryOption = $store->deliveryOptions()->create([
+        'name' => DeliveryOptionName::Saver,
+        'description' => 'Lowest-cost delivery option.',
+        'additional_fee' => 0.00,
+        'estimated_delivery_minutes' => 90,
+        'is_active' => true,
     ]);
 
     $category = Category::factory()->create();
@@ -52,7 +60,13 @@ function createCheckoutData(User $customer, int $stock = 5, int $quantity = 2): 
         'quantity' => $quantity,
     ]);
 
-    return compact('address', 'cart', 'product', 'store');
+    return compact(
+        'address',
+        'cart',
+        'product',
+        'store',
+        'deliveryOption',
+    );
 }
 
 test('customer places an order and checkout creates immutable records', function (): void {
@@ -64,6 +78,7 @@ test('customer places an order and checkout creates immutable records', function
 
     $response = $this->postJson('/api/v1/orders', [
         'address_id' => $data['address']->id,
+        'delivery_option_id' => $data['deliveryOption']->id,
         'payment_method' => PaymentMethod::CashOnDelivery->value,
     ]);
 
@@ -73,6 +88,14 @@ test('customer places an order and checkout creates immutable records', function
         ->assertJsonPath('data.subtotal', '200.00')
         ->assertJsonPath('data.delivery_fee', '30.00')
         ->assertJsonPath('data.total', '230.00')
+        ->assertJsonPath(
+            'data.delivery_option.name',
+            DeliveryOptionName::Saver->value,
+        )
+        ->assertJsonPath(
+            'data.delivery_option.estimated_delivery_minutes',
+            90,
+        )
         ->assertJsonPath('data.items.0.product_name', $data['product']->name)
         ->assertJsonPath('data.items.0.quantity', 2);
 
@@ -82,6 +105,9 @@ test('customer places an order and checkout creates immutable records', function
         'id' => $order->id,
         'user_id' => $customer->id,
         'store_id' => $data['store']->id,
+        'delivery_option_id' => $data['deliveryOption']->id,
+        'delivery_option_name' => DeliveryOptionName::Saver->value,
+        'estimated_delivery_minutes' => 90,
         'status' => OrderStatus::Pending->value,
         'subtotal' => '200.00',
         'delivery_fee' => '30.00',
@@ -131,10 +157,21 @@ test('returns 422 when customer checks out with an empty cart', function (): voi
         'longitude' => 120.9842,
     ]);
 
+    $store = Store::factory()->create();
+
+    $deliveryOption = $store->deliveryOptions()->create([
+        'name' => DeliveryOptionName::Saver,
+        'description' => 'Lowest-cost delivery option.',
+        'additional_fee' => 0.00,
+        'estimated_delivery_minutes' => 90,
+        'is_active' => true,
+    ]);
+
     Sanctum::actingAs($customer);
 
     $this->postJson('/api/v1/orders', [
         'address_id' => $address->id,
+        'delivery_option_id' => $deliveryOption->id,
         'payment_method' => PaymentMethod::CashOnDelivery->value,
     ])
         ->assertUnprocessable()
@@ -164,6 +201,7 @@ test('returns 404 when customer checks out using another customer address', func
 
     $this->postJson('/api/v1/orders', [
         'address_id' => $otherAddress->id,
+        'delivery_option_id' => $data['deliveryOption']->id,
         'payment_method' => PaymentMethod::CashOnDelivery->value,
     ])->assertNotFound();
 
@@ -180,6 +218,7 @@ test('returns 422 and makes no changes when cart quantity exceeds stock', functi
 
     $this->postJson('/api/v1/orders', [
         'address_id' => $data['address']->id,
+        'delivery_option_id' => $data['deliveryOption']->id,
         'payment_method' => PaymentMethod::CashOnDelivery->value,
     ])
         ->assertUnprocessable()
@@ -205,6 +244,7 @@ test('customer cancels a pending order and stock is restored', function (): void
 
     $this->postJson('/api/v1/orders', [
         'address_id' => $data['address']->id,
+        'delivery_option_id' => $data['deliveryOption']->id,
         'payment_method' => PaymentMethod::CashOnDelivery->value,
     ])->assertCreated();
 
@@ -238,6 +278,7 @@ test('returns 403 when customer attempts to cancel an accepted order', function 
 
     $this->postJson('/api/v1/orders', [
         'address_id' => $data['address']->id,
+        'delivery_option_id' => $data['deliveryOption']->id,
         'payment_method' => PaymentMethod::CashOnDelivery->value,
     ])->assertCreated();
 
@@ -256,6 +297,7 @@ test('returns 403 when customer attempts to cancel an accepted order', function 
 test('returns 401 when no token is provided while placing an order', function (): void {
     $this->postJson('/api/v1/orders', [
         'address_id' => 1,
+        'delivery_option_id' => 1,
         'payment_method' => PaymentMethod::CashOnDelivery->value,
     ])->assertUnauthorized();
 });

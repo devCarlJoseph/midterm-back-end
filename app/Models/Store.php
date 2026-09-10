@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
 #[Fillable([
     'name',
     'slug',
@@ -55,5 +56,10 @@ class Store extends Model
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function deliveryOptions(): HasMany
+    {
+        return $this->hasMany(DeliveryOption::class);
     }
 }

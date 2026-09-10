@@ -15,20 +15,21 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use App\Events\OrderPlaced;
+use App\Models\DeliveryOption;
 
 class PlaceOrder
 {
     public function __construct(
         private DeliveryFeeService $deliveryFeeService,
-    ) {
-    }
+    ) {}
 
     public function handle(
         User $user,
         int $addressId,
+        int $deliveryOptionId,
         PaymentMethod $paymentMethod,
     ): Order {
-        return DB::transaction(function () use ($user, $addressId, $paymentMethod): Order {
+        return DB::transaction(function () use ($user, $addressId, $paymentMethod, $deliveryOptionId,): Order {
             $address = $user->addresses()->findOrFail($addressId);
 
             $cart = $user->cart()->first();
@@ -40,6 +41,19 @@ class PlaceOrder
             }
 
             $store = Store::query()->findOrFail($cart->store_id);
+
+            $deliveryOption = DeliveryOption::query()
+                ->whereKey($deliveryOptionId)
+                ->whereBelongsTo($store)
+                ->active()
+                ->lockForUpdate()
+                ->first();
+
+            if ($deliveryOption === null) {
+                throw ValidationException::withMessages([
+                    'delivery_option_id' => ['The selected delivery option is unavailable for this store.'],
+                ]);
+            }
 
             $cartItems = $cart->items()
                 ->orderBy('product_id')
@@ -85,12 +99,13 @@ class PlaceOrder
             $deliveryFeeInCentavos = $this->deliveryFeeService->calculateInCentavos(
                 $store,
                 $address,
+                $deliveryOption,
             );
 
             $totalInCentavos = $subtotalInCentavos + $deliveryFeeInCentavos;
 
             $order = Order::query()->create([
-                'order_number' => 'DALI-'.Str::upper((string) Str::uuid()),
+                'order_number' => 'DALI-' . Str::upper((string) Str::uuid()),
                 'user_id' => $user->id,
                 'store_id' => $store->id,
                 'address_id' => $address->id,
@@ -100,6 +115,9 @@ class PlaceOrder
                 'subtotal' => $this->money($subtotalInCentavos),
                 'delivery_fee' => $this->money($deliveryFeeInCentavos),
                 'total' => $this->money($totalInCentavos),
+                'delivery_option_id' => $deliveryOption->id,
+                'delivery_option_name' => $deliveryOption->name,
+                'estimated_delivery_minutes' => $deliveryOption->estimated_delivery_minutes,
             ]);
 
             foreach ($lines as $line) {

@@ -40,6 +40,8 @@ class DaliCatalogSeeder extends Seeder
                 ],
             );
 
+            $this->seedDeliveryOptions($store);
+
             foreach ($storeData['products'] as $categoryName => $productNames) {
                 $category = $categories->get($categoryName);
 
@@ -994,5 +996,39 @@ class DaliCatalogSeeder extends Seeder
             'Snacks' => 'pack',
             default => 'piece',
         };
+    }
+
+    private function seedDeliveryOptions(Store $store): void
+    {
+        $options = [
+            [
+                'name' => \App\Enums\DeliveryOptionName::Saver,
+                'description' => 'Lowest-cost delivery option.',
+                'additional_fee' => 0.00,
+                'estimated_delivery_minutes' => 90,
+            ],
+            [
+                'name' => \App\Enums\DeliveryOptionName::Standard,
+                'description' => 'Balanced delivery speed and price.',
+                'additional_fee' => 25.00,
+                'estimated_delivery_minutes' => 60,
+            ],
+            [
+                'name' => \App\Enums\DeliveryOptionName::Express,
+                'description' => 'Fastest delivery option.',
+                'additional_fee' => 50.00,
+                'estimated_delivery_minutes' => 30,
+            ],
+        ];
+
+        foreach ($options as $option) {
+            $store->deliveryOptions()->updateOrCreate(
+                ['name' => $option['name']],
+                [
+                    ...$option,
+                    'is_active' => true,
+                ],
+            );
+        }
     }
 }

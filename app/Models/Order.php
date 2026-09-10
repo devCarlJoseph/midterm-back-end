@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Enums\DeliveryOptionName;
 
 
 #[Fillable([
@@ -22,6 +23,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'subtotal',
     'delivery_fee',
     'total',
+    'delivery_option_id',
+    'delivery_option_name',
+    'estimated_delivery_minutes',
 ])]
 class Order extends Model
 {
@@ -34,6 +38,8 @@ class Order extends Model
             'subtotal' => 'decimal:2',
             'delivery_fee' => 'decimal:2',
             'total' => 'decimal:2',
+            'delivery_option_name' => DeliveryOptionName::class,
+            'estimated_delivery_minutes' => 'integer',
         ];
     }
 
@@ -70,5 +76,10 @@ class Order extends Model
     public function delivery(): HasOne
     {
         return $this->hasOne(Delivery::class);
+    }
+
+    public function deliveryOption(): BelongsTo
+    {
+        return $this->belongsTo(DeliveryOption::class);
     }
 }

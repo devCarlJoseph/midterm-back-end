@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\StoreController;
 use App\Http\Controllers\Api\V1\StoreProductController;
+use App\Http\Controllers\Api\V1\StoreDeliveryOptionController;
 use Illuminate\Support\Facades\Route;
 
 // Authentication
@@ -33,6 +34,12 @@ Route::prefix('v1')->group(function (): void {
 
     Route::controller(StoreProductController::class)
         ->prefix('stores/{store}/products')
+        ->group(function (): void {
+            Route::get('/', 'index');
+        });
+
+    Route::prefix('stores/{store}/delivery-options')
+        ->controller(StoreDeliveryOptionController::class)
         ->group(function (): void {
             Route::get('/', 'index');
         });
@@ -116,5 +123,13 @@ Route::prefix('v1')
             ->group(function (): void {
                 Route::get('/', 'index');
                 Route::patch('/{notification}/read', 'markAsRead');
+            });
+
+        Route::prefix('stores/{store}/delivery-options')
+            ->controller(StoreDeliveryOptionController::class)
+            ->group(function (): void {
+                Route::post('/', 'store');
+                Route::patch('/{deliveryOption}', 'update');
+                Route::delete('/{deliveryOption}', 'destroy');
             });
     });

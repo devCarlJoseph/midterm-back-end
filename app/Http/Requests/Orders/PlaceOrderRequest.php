@@ -19,6 +19,12 @@ class PlaceOrderRequest extends FormRequest
         return [
             'address_id' => ['required', 'integer', Rule::exists('addresses', 'id')],
             'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
+            'delivery_option_id' => [
+                'required',
+                'integer',
+                Rule::exists('delivery_options', 'id')
+                    ->where('is_active', true),
+            ],
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\DistanceCalculator;
 use App\Models\Address;
+use App\Models\DeliveryOption;
 use App\Models\Store;
 use Illuminate\Validation\ValidationException;
 
@@ -14,8 +15,11 @@ class DeliveryFeeService
     ) {
     }
 
-    public function calculateInCentavos(Store $store, Address $address): int
-    {
+    public function calculateInCentavos(
+        Store $store,
+        Address $address,
+        DeliveryOption $deliveryOption,
+    ): int {
         if (
             $store->latitude === null
             || $store->longitude === null
@@ -40,8 +44,14 @@ class DeliveryFeeService
             ]);
         }
 
-        return (int) config('delivery.base_fee_in_centavos')
+        $distanceFeeInCentavos = (int) config('delivery.base_fee_in_centavos')
             + ((int) ceil($distanceInKilometers)
                 * (int) config('delivery.per_kilometer_in_centavos'));
+
+        $optionFeeInCentavos = (int) round(
+            ((float) $deliveryOption->additional_fee) * 100,
+        );
+
+        return $distanceFeeInCentavos + $optionFeeInCentavos;
     }
 }
